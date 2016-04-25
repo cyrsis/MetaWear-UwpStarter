@@ -73,7 +73,11 @@ namespace MbientLab.MetaWear.Template {
         }
 
         private void pairedDevices_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            BluetoothLEDevice selected = ((ListView)sender).SelectedItem as BluetoothLEDevice;
 
+            if (selected != null) {
+                this.Frame.Navigate(typeof(DeviceSetup), selected);
+            }
         }
     }
 }
