@@ -27,25 +27,23 @@ namespace MbientLab.MetaWear.Template {
     /// Blank page where users add their MetaWear commands
     /// </summary>
     public sealed partial class DeviceSetup : Page {
-        /// <summary>
-        /// Pointer representing the MblMwMetaWearBoard struct passed in from the MainPage class
-        /// </summary>
-        private IntPtr board;
+        private MetaWearBoard board;
         
 
         public DeviceSetup() {
             this.InitializeComponent();
         }
         
-        protected override void OnNavigatedTo(NavigationEventArgs e) {
+        protected override async void OnNavigatedTo(NavigationEventArgs e) {
             base.OnNavigatedTo(e);
 
-            board = (IntPtr) e.Parameter;
+            var selectedDevice = e.Parameter as BluetoothLEDevice;
+            board= await MetaWearBoard.getMetaWearBoardInstance(selectedDevice);
+
         }
 
         private void back_Click(object sender, RoutedEventArgs e) {
-            mbl_mw_metawearboard_tear_down(board);
-            mbl_mw_metawearboard_free(board);
+            mbl_mw_metawearboard_tear_down(board.CppBoard);
 
             this.Frame.Navigate(typeof(MainPage));
         }
