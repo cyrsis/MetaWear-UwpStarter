@@ -15,8 +15,8 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="100*" />
-            <RowDefinition Height="800*" />
-            <RowDefinition Height="100*" />
+            <RowDefinition Height="850*" />
+            <RowDefinition Height="50*" />
         </Grid.RowDefinitions>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Center" Text="Select Device" VerticalAlignment="Stretch" FontSize="48" Foreground="#758cc0"/>
         <ListView x:Name="pairedDevices" HorizontalAlignment="Stretch" Grid.Row="1" VerticalAlignment="Stretch" SelectionChanged="pairedDevices_SelectionChanged">
@@ -30,6 +30,6 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Button x:Name="refreshDevices" Content="Refresh" HorizontalAlignment="Stretch" Grid.Row="2" VerticalAlignment="Stretch" Click="refreshDevices_Click" Margin="10,0" />
+        <Button x:Name="refreshDevices" Content="Refresh" HorizontalAlignment="Stretch" Grid.Row="2" VerticalAlignment="Bottom" Click="refreshDevices_Click" />
     </Grid>
 </Page>
