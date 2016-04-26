@@ -29,6 +29,12 @@
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
+            <Flyout x:Name="initFlyout">
+                <StackPanel>
+                    <TextBlock Text="Initializing the API.  Please wait..."/>
+                    <ProgressBar IsIndeterminate="True"/>
+                </StackPanel>
+            </Flyout>
         </ListView>
         <Button x:Name="refreshDevices" Content="Refresh" HorizontalAlignment="Stretch" Grid.Row="2" VerticalAlignment="Bottom" Click="refreshDevices_Click" />
     </Grid>
