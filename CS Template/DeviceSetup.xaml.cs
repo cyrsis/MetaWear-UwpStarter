@@ -27,9 +27,11 @@ namespace MbientLab.MetaWear.Template {
     /// Blank page where users add their MetaWear commands
     /// </summary>
     public sealed partial class DeviceSetup : Page {
-        private MetaWearBoard board;
+        /// <summary>
+        /// Pointer representing the MblMwMetaWearBoard struct created by the C++ API
+        /// </summary>
+        private IntPtr cppBoard;
         
-
         public DeviceSetup() {
             this.InitializeComponent();
         }
@@ -37,13 +39,17 @@ namespace MbientLab.MetaWear.Template {
         protected override async void OnNavigatedTo(NavigationEventArgs e) {
             base.OnNavigatedTo(e);
 
-            var selectedDevice = e.Parameter as BluetoothLEDevice;
-            board= await MetaWearBoard.getMetaWearBoardInstance(selectedDevice);
+            var mwBoard= await MetaWearBoard.getMetaWearBoardInstance(e.Parameter as BluetoothLEDevice);
+            cppBoard = mwBoard.cppBoard;
 
+            // cppBoard is initialized at this point and can be used
         }
 
+        /// <summary>
+        /// Callback for the back button which tears down the board and navigates back to the <see cref="MainPage"/> page
+        /// </summary>
         private void back_Click(object sender, RoutedEventArgs e) {
-            mbl_mw_metawearboard_tear_down(board.CppBoard);
+            mbl_mw_metawearboard_tear_down(cppBoard);
 
             this.Frame.Navigate(typeof(MainPage));
         }

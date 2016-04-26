@@ -1,6 +1,4 @@
 ﻿using MbientLab.MetaWear.Core;
-using MbientLab.MetaWear.Processor;
-using static MbientLab.MetaWear.Functions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,10 +54,6 @@ namespace MbientLab.MetaWear.Template {
         }
     }
 
-    /// <summary>
-    /// Sets up the C++ API to be used in C# following the steps outlined in the C++ documentation:
-    /// https://mbientlab.com/cppdocs/latest/btlecommunication.html
-    /// </summary>
     public sealed partial class MainPage : Page
     {
         public MainPage()
@@ -73,13 +67,18 @@ namespace MbientLab.MetaWear.Template {
             refreshDevices_Click(null, null);
         }
 
+        /// <summary>
+        /// Callback for the refresh button which populates the devices list
+        /// </summary>
         private async void refreshDevices_Click(object sender, RoutedEventArgs e) {
             pairedDevices.Items.Clear();
             foreach (var info in await DeviceInformation.FindAllAsync(BluetoothLEDevice.GetDeviceSelector())) {
                 pairedDevices.Items.Add(await BluetoothLEDevice.FromIdAsync(info.Id));
             }
         }
-
+        /// <summary>
+        /// Callback for the devices list which navigates to the <see cref="DeviceSetup"/> page with the selected device
+        /// </summary>
         private async void pairedDevices_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             var selectedDevice = ((ListView)sender).SelectedItem as BluetoothLEDevice;
 
