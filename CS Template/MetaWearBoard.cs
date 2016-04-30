@@ -18,18 +18,17 @@ namespace MbientLab.MetaWear.Template {
     /// </summary>
     public sealed class MetaWearBoard {
         private static Dictionary<ulong, MetaWearBoard> instances= new Dictionary<ulong, MetaWearBoard>();
-        public static async Task<MetaWearBoard> getMetaWearBoardInstance(BluetoothLEDevice btleDevice) {
+        public static MetaWearBoard getMetaWearBoardInstance(BluetoothLEDevice btleDevice) {
             MetaWearBoard board;
 
             if (!instances.TryGetValue(btleDevice.BluetoothAddress, out board)) {
-                await btleDevice.GetGattService(GattCharGuid.METAWEAR_NOTIFY_CHAR.serviceGuid).GetCharacteristics(GattCharGuid.METAWEAR_NOTIFY_CHAR.guid).FirstOrDefault()
-                    .WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
                 board = new MetaWearBoard(btleDevice);
                 instances.Add(btleDevice.BluetoothAddress, board);
             }
             return board;
         }
 
+        private Windows.Devices.Bluetooth.GenericAttributeProfile.GattCharacteristic notifyChar= null;
         private BluetoothLEDevice btleDevice;
         /// <summary>
         /// Pointer representing the MblMwMetaWearBoard struct created by the C++ API
@@ -51,9 +50,6 @@ namespace MbientLab.MetaWear.Template {
             btleConn.writeGattChar = new FnVoidPtrByteArray(writeCharacteristic);
             btleConn.readGattChar = new FnVoidPtr(readCharacteristic);
 
-            var notifyChar = btleDevice.GetGattService(GattCharGuid.METAWEAR_NOTIFY_CHAR.serviceGuid).GetCharacteristics(GattCharGuid.METAWEAR_NOTIFY_CHAR.guid).FirstOrDefault();
-            notifyChar.ValueChanged += notifyHandler;
-
             cppBoard = mbl_mw_metawearboard_create(ref btleConn);
         }
 
@@ -61,7 +57,13 @@ namespace MbientLab.MetaWear.Template {
         /// Initialize the API
         /// </summary>
         /// <param name="initDelegate">C# Delegate wrapping the callback for <see cref="mbl_mw_metawearboard_initialize(IntPtr, FnVoid)"/></param>
-        public void Initialize(FnVoid initDelegate) {
+        public async void Initialize(FnVoid initDelegate) {
+            if (notifyChar == null) {
+                notifyChar = btleDevice.GetGattService(GattCharGuid.METAWEAR_NOTIFY_CHAR.serviceGuid).GetCharacteristics(GattCharGuid.METAWEAR_NOTIFY_CHAR.guid).FirstOrDefault();
+                notifyChar.ValueChanged += notifyHandler;
+                await notifyChar.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+            }
+
             this.initDelegate = initDelegate;
             mbl_mw_metawearboard_initialize(cppBoard, this.initDelegate);
         }
@@ -72,8 +74,8 @@ namespace MbientLab.MetaWear.Template {
         public void Free() {
             mbl_mw_metawearboard_free(cppBoard);
 
-            var notifyChar = btleDevice.GetGattService(GattCharGuid.METAWEAR_NOTIFY_CHAR.serviceGuid).GetCharacteristics(GattCharGuid.METAWEAR_NOTIFY_CHAR.guid).FirstOrDefault();
             notifyChar.ValueChanged -= notifyHandler;
+            notifyChar = null;
 
             instances.Remove(btleDevice.BluetoothAddress);
         }

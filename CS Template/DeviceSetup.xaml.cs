@@ -36,10 +36,10 @@ namespace MbientLab.MetaWear.Template {
             this.InitializeComponent();
         }
         
-        protected override async void OnNavigatedTo(NavigationEventArgs e) {
+        protected override void OnNavigatedTo(NavigationEventArgs e) {
             base.OnNavigatedTo(e);
 
-            var mwBoard= await MetaWearBoard.getMetaWearBoardInstance(e.Parameter as BluetoothLEDevice);
+            var mwBoard= MetaWearBoard.getMetaWearBoardInstance(e.Parameter as BluetoothLEDevice);
             cppBoard = mwBoard.cppBoard;
 
             // cppBoard is initialized at this point and can be used

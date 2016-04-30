@@ -79,12 +79,12 @@ namespace MbientLab.MetaWear.Template {
         /// <summary>
         /// Callback for the devices list which navigates to the <see cref="DeviceSetup"/> page with the selected device
         /// </summary>
-        private async void pairedDevices_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+        private void pairedDevices_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             var selectedDevice = ((ListView)sender).SelectedItem as BluetoothLEDevice;
 
             if (selectedDevice != null) {
                 initFlyout.ShowAt(pairedDevices);
-                var board = await MetaWearBoard.getMetaWearBoardInstance(selectedDevice);
+                var board = MetaWearBoard.getMetaWearBoardInstance(selectedDevice);
                 board.Initialize(new FnVoid(async () => {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
                     CoreDispatcherPriority.Normal, () => {
