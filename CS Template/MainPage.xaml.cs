@@ -85,11 +85,20 @@ namespace MbientLab.MetaWear.Template {
             if (selectedDevice != null) {
                 initFlyout.ShowAt(pairedDevices);
                 var board = MetaWearBoard.getMetaWearBoardInstance(selectedDevice);
-                board.Initialize(new FnVoid(async () => {
+                board.Initialize(new Fn_IntPtr_Int(async (caller, status) => {
                     await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                    CoreDispatcherPriority.Normal, () => {
+                    CoreDispatcherPriority.Normal, async () => {
                         initFlyout.Hide();
-                        this.Frame.Navigate(typeof(DeviceSetup), selectedDevice);
+
+                        if (status == Status.ERROR_TIMEOUT) {
+                            await new ContentDialog() {
+                                Title = "Error",
+                                Content = "API initialization timed out.  Try re-pairing the MetaWear or moving it closer to the host device",
+                                PrimaryButtonText = "OK"
+                            }.ShowAsync();
+                        } else {
+                            this.Frame.Navigate(typeof(DeviceSetup), selectedDevice);
+                        }
                     });
                 }));
             }
