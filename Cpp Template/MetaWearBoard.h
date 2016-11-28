@@ -3,15 +3,15 @@
 #include "metawear/core/metawearboard.h"
 
 namespace Cpp_Template {
-    public ref class MetaWearBoard : Platform::Object {
+    class MetaWearBoard {
     public:
         virtual ~MetaWearBoard();
 
-        void initialize();
+        void initialize(MblMwFnBoardPtrInt initialized);
         void free();
     private:
         static MblMwBtleConnection conn;
-        static MetaWearBoard^ getInstance(Windows::Devices::Bluetooth::BluetoothLEDevice ^device);
+        static MetaWearBoard* getInstance(Windows::Devices::Bluetooth::BluetoothLEDevice ^device);
         static void writeGattCharacteristic(const void* caller, const MblMwGattChar* characteristic, const uint8_t* value, uint8_t length);
         static void readGattCharacteristic(const void* caller, const MblMwGattChar* characteristic);
 
