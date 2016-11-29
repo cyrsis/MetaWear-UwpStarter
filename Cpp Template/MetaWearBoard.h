@@ -5,13 +5,14 @@
 namespace Cpp_Template {
     class MetaWearBoard {
     public:
+        static MetaWearBoard* getInstance(Windows::Devices::Bluetooth::BluetoothLEDevice ^device);
+
         virtual ~MetaWearBoard();
 
         void initialize(MblMwFnBoardPtrInt initialized);
         void free();
     private:
         static MblMwBtleConnection conn;
-        static MetaWearBoard* getInstance(Windows::Devices::Bluetooth::BluetoothLEDevice ^device);
         static void writeGattCharacteristic(const void* caller, const MblMwGattChar* characteristic, const uint8_t* value, uint8_t length);
         static void readGattCharacteristic(const void* caller, const MblMwGattChar* characteristic);
 

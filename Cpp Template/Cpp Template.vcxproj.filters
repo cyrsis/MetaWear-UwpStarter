@@ -56,5 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />
+    <Page Include="DeviceSetup.xaml" />
   </ItemGroup>
 </Project>

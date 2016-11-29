@@ -6,6 +6,11 @@
 #include "pch.h"
 #include "MainPage.xaml.h"
 
+#include "DeviceSetup.xaml.h"
+#include "MetaWearBoard.h"
+
+#include "metawear/core/status.h"
+
 #include <cstring>
 #include <iomanip>
 #include <sstream>
@@ -13,10 +18,12 @@
 using namespace Cpp_Template;
 
 using namespace Platform;
+using namespace Windows::ApplicationModel::Core;
 using namespace Windows::Devices::Bluetooth;
 using namespace Windows::Devices::Enumeration;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
+using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Controls::Primitives;
@@ -91,32 +98,35 @@ void MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^
     refreshDevices_Click(nullptr, nullptr);
 }
 
-
+void MainPage::HideInitFlyout() {
+    initFlyout->Hide();
+}
 
 void Cpp_Template::MainPage::pairedDevices_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e) {
-    BluetoothLEDevice^ selectedDevice = dynamic_cast<BluetoothLEDevice^>(sender);
+    auto selectedDevice = dynamic_cast<BluetoothLEDevice^>(dynamic_cast<ListView^>(sender)->SelectedItem);
 
     if (selectedDevice != nullptr) {
         initFlyout->ShowAt(pairedDevices);
-        /*
-        var board = MetaWearBoard.getMetaWearBoardInstance(selectedDevice);
-        board.Initialize(new Fn_IntPtr_Int(async(caller, status) = > {
-            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                CoreDispatcherPriority.Normal, async() = > {
-                initFlyout.Hide();
 
-                if (status == Status.ERROR_TIMEOUT) {
-                    await new ContentDialog(){
-                        Title = "Error",
-                        Content = "API initialization timed out.  Try re-pairing the MetaWear or moving it closer to the host device",
-                        PrimaryButtonText = "OK"
-                    }.ShowAsync();
+        auto board = MetaWearBoard::getInstance(selectedDevice);
+        board->initialize([](MblMwMetaWearBoard* board, int32_t status) -> void {
+            CoreApplication::MainView->CoreWindow->Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([&status]() -> void {
+                MainPage^ page = dynamic_cast<MainPage^>(Window::Current->Content);
+                page->HideInitFlyout();
+
+                if (status == MBL_MW_STATUS_ERROR_TIMEOUT) {
+                    auto dialog = ref new ContentDialog();
+                    dialog->Title = "Error";
+                    dialog->Content = "API initialization timed out.  Try re-pairing the MetaWear or moving it closer to the host device";
+                    dialog->PrimaryButtonText = "OK";
+                    dialog->ShowAsync();
                 } else {
-                    this.Frame.Navigate(typeof(DeviceSetup), selectedDevice);
+                    page->Frame->Navigate(DeviceSetup::typeid);
+                    //this.Frame.Navigate(typeof(DeviceSetup), selectedDevice);
                 }
-            });
-        }));
-        */
+
+            }));
+        });
     }
 }
 
@@ -127,6 +137,10 @@ void Cpp_Template::MainPage::refreshDevices_Click(Platform::Object^ sender, Wind
         for (auto info : devicesInfo) {
             concurrency::create_task(BluetoothLEDevice::FromIdAsync(info->Id)).then([this](BluetoothLEDevice^ device) -> void {
                 pairedDevices->Items->Append(device);
+
+                wstringstream wstream;
+                wstream << "Device: " << hex << (uint64) device->BluetoothAddress << "\r\n";
+                OutputDebugString(wstream.str().c_str());
             });
         }
     });

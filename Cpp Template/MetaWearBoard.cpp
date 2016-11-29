@@ -18,13 +18,13 @@ static unordered_map<uint64, MetaWearBoard*> instances;
 static unordered_map<const void*, MetaWearBoard*> cppToWrapper;
 MblMwBtleConnection MetaWearBoard::conn = { MetaWearBoard::writeGattCharacteristic, MetaWearBoard::readGattCharacteristic };
 
-static inline Guid byteArrayToGuid(const uint8_t* uuids) {
+static inline Guid byteArrayToGuid(const uint8_t* uuid) {
     Array<byte>^ lower = ref new Array<byte>(8);
     for (unsigned int i = 0; i < lower->Length; i++) {
-        lower[i] = *(uuids + 128 + i);
+        lower[i] = *(uuid + 15 - i);
     }
 
-    return Guid(*((uint32*) (uuids)), *((uint16*) uuids + 2), *((uint16*)uuids + 3), lower);
+    return Guid(*(((uint32_t*) (uuid + 4))), *((uint16_t*) (uuid + 2)), *((uint16_t*) uuid), lower);
 }
 
 void MetaWearBoard::writeGattCharacteristic(const void* caller, const MblMwGattChar* characteristic, const uint8_t* value, uint8_t length) {
@@ -46,13 +46,13 @@ void MetaWearBoard::readGattCharacteristic(const void* caller, const MblMwGattCh
     Guid service = byteArrayToGuid((const uint8_t*)characteristic), guidChar = byteArrayToGuid((const uint8_t*)(&characteristic->uuid_high));
     auto src = cppToWrapper.at(caller)->device->GetGattService(service)->GetCharacteristics(guidChar)->First()->Current;
 
-    concurrency::create_task(src->ReadValueAsync()).then([&caller, &characteristic](GattReadResult^ result) {
+    concurrency::create_task(src->ReadValueAsync()).then([caller, characteristic](GattReadResult^ result) {
         if (result->Status != GattCommunicationStatus::Success) {
             OutputDebugString(L"Could not read gatt characteristic\r\n");
         } else {
             Array<byte>^ value;
             CryptographicBuffer::CopyToByteArray(result->Value, &value);
-            mbl_mw_metawearboard_char_read(cppToWrapper.at(caller)->cppBoard, characteristic, value->Data, value->Length);
+            mbl_mw_metawearboard_char_read((MblMwMetaWearBoard*) caller, characteristic, value->Data, value->Length);
         }
     });
 }
