@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "MetaWearBoard.h"
 #include "DeviceSetup.g.h"
 
 namespace Cpp_Template
@@ -17,5 +18,10 @@ namespace Cpp_Template
 	{
 	public:
 		DeviceSetup();
-	};
+    protected:
+        virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
+    private:
+        MetaWearBoard* wrapperBoard;
+        void back_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+    };
 }

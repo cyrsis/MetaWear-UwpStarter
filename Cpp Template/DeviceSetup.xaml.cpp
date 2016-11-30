@@ -4,11 +4,14 @@
 //
 
 #include "pch.h"
+
+#include "MainPage.xaml.h"
 #include "DeviceSetup.xaml.h"
 
 using namespace Cpp_Template;
 
 using namespace Platform;
+using namespace Windows::Devices::Bluetooth;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::UI::Xaml;
@@ -24,4 +27,16 @@ using namespace Windows::UI::Xaml::Navigation;
 DeviceSetup::DeviceSetup()
 {
 	InitializeComponent();
+}
+
+void Cpp_Template::DeviceSetup::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs ^ e) {
+    wrapperBoard = MetaWearBoard::getInstance(dynamic_cast<BluetoothLEDevice^>(e->Parameter));
+    // use 'wrapperBoard->cppBoard' for all function calls to the C++ api
+    
+}
+
+
+void Cpp_Template::DeviceSetup::back_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e) {
+    mbl_mw_metawearboard_tear_down(wrapperBoard->cppBoard);
+    Frame->Navigate(MainPage::typeid);
 }

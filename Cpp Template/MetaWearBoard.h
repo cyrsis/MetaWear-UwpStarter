@@ -11,6 +11,8 @@ namespace Cpp_Template {
 
         void initialize(MblMwFnBoardPtrInt initialized);
         void free();
+
+        MblMwMetaWearBoard *cppBoard;
     private:
         static MblMwBtleConnection conn;
         static void writeGattCharacteristic(const void* caller, const MblMwGattChar* characteristic, const uint8_t* value, uint8_t length);
@@ -19,7 +21,6 @@ namespace Cpp_Template {
         MetaWearBoard(Windows::Devices::Bluetooth::BluetoothLEDevice ^device);
 
         Windows::Devices::Bluetooth::BluetoothLEDevice ^device;
-        MblMwMetaWearBoard *cppBoard;
         Windows::Devices::Bluetooth::GenericAttributeProfile::GattCharacteristic^  mwNotifyGattChar;
     };
 }
