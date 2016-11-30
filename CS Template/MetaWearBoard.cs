@@ -14,7 +14,7 @@ using MbientLab.MetaWear.Core;
 namespace MbientLab.MetaWear.Template {
     /// <summary>
     /// Wrapper class that Sets up the C++ API to be used in C# following the steps outlined in the C++ documentation:
-    /// https://mbientlab.com/cppdocs/0.5.0/btlecommunication.html
+    /// https://mbientlab.com/cppdocs/latest/btlecommunication.html
     /// </summary>
     public sealed class MetaWearBoard {
         private static Dictionary<ulong, MetaWearBoard> instances= new Dictionary<ulong, MetaWearBoard>();
