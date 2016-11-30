@@ -79,28 +79,28 @@ namespace MbientLab.MetaWear.Template {
         /// <summary>
         /// Callback for the devices list which navigates to the <see cref="DeviceSetup"/> page with the selected device
         /// </summary>
-        private void pairedDevices_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+        private async void pairedDevices_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             var selectedDevice = ((ListView)sender).SelectedItem as BluetoothLEDevice;
 
             if (selectedDevice != null) {
                 initFlyout.ShowAt(pairedDevices);
                 var board = MetaWearBoard.getMetaWearBoardInstance(selectedDevice);
-                board.Initialize(new Fn_IntPtr_Int(async (caller, status) => {
-                    await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                    CoreDispatcherPriority.Normal, async () => {
-                        initFlyout.Hide();
+                var initResult = await board.Initialize();
 
-                        if (status == Status.ERROR_TIMEOUT) {
-                            await new ContentDialog() {
-                                Title = "Error",
-                                Content = "API initialization timed out.  Try re-pairing the MetaWear or moving it closer to the host device",
-                                PrimaryButtonText = "OK"
-                            }.ShowAsync();
-                        } else {
-                            this.Frame.Navigate(typeof(DeviceSetup), selectedDevice);
-                        }
-                    });
-                }));
+                await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
+                CoreDispatcherPriority.Normal, async () => {
+                    initFlyout.Hide();
+
+                    if (initResult == Status.ERROR_TIMEOUT) {
+                        await new ContentDialog() {
+                            Title = "Error",
+                            Content = "API initialization timed out.  Try re-pairing the MetaWear or moving it closer to the host device",
+                            PrimaryButtonText = "OK"
+                        }.ShowAsync();
+                    } else {
+                        this.Frame.Navigate(typeof(DeviceSetup), selectedDevice);
+                    }
+                });
             }
         }
     }

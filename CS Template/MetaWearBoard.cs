@@ -88,11 +88,7 @@ namespace MbientLab.MetaWear.Template {
         /// C# wrapper around the MblMwBtleConnection struct 
         /// </summary>
         private BtleConnection btleConn;
-        /// <summary>
-        /// Delegate wrapper the <see cref="initialized"/> callback function
-        /// </summary>
-        private Fn_IntPtr_Int initDelegate;
-
+        
         private MetaWearBoard(BluetoothLEDevice btleDevice) {
             this.btleDevice = btleDevice;
 
@@ -107,16 +103,25 @@ namespace MbientLab.MetaWear.Template {
         /// <summary>
         /// Initialize the API
         /// </summary>
-        /// <param name="initDelegate">C# Delegate wrapping the callback for <see cref="mbl_mw_metawearboard_initialize(IntPtr, FnVoid)"/></param>
-        public async void Initialize(Fn_IntPtr_Int initDelegate) {
+        /// <returns>Status value from calling <see cref="mbl_mw_metawearboard_initialize(IntPtr, Fn_IntPtr_Int)"/></returns>
+        public async Task<int> Initialize() {
             if (notifyChar == null) {
                 notifyChar = btleDevice.GetGattService(GattCharGuid.METAWEAR_NOTIFY_CHAR.serviceGuid).GetCharacteristics(GattCharGuid.METAWEAR_NOTIFY_CHAR.guid).FirstOrDefault();
                 notifyChar.ValueChanged += notifyHandler;
                 await notifyChar.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
             }
 
-            this.initDelegate = initDelegate;
-            mbl_mw_metawearboard_initialize(cppBoard, this.initDelegate);
+            
+            return await Task.Run(() => {
+                int initStatus = -1;
+
+                Fn_IntPtr_Int initDelegate = new Fn_IntPtr_Int((caller, status) => {
+                    initStatus = status;
+                });
+                mbl_mw_metawearboard_initialize(cppBoard, initDelegate);
+
+                return initStatus;
+            });
         }
 
         /// <summary>
