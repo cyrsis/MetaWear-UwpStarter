@@ -39,10 +39,13 @@ namespace Cpp_Template
 		MainPage();
 
         void HideInitFlyout();
+        void navigateToDeviceSetup();
+
     protected:
         virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
 
     private:
+        Windows::Devices::Bluetooth::BluetoothLEDevice^ selectedDevice;
         void pairedDevices_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
         void refreshDevices_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
     };

@@ -95,6 +95,7 @@ MainPage::MainPage()
 }
 
 void MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) {
+    selectedDevice = nullptr;
     refreshDevices_Click(nullptr, nullptr);
 }
 
@@ -102,8 +103,12 @@ void MainPage::HideInitFlyout() {
     initFlyout->Hide();
 }
 
+void MainPage::navigateToDeviceSetup() {
+    Frame->Navigate(DeviceSetup::typeid, selectedDevice);
+}
+
 void Cpp_Template::MainPage::pairedDevices_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e) {
-    auto selectedDevice = dynamic_cast<BluetoothLEDevice^>(dynamic_cast<ListView^>(sender)->SelectedItem);
+    selectedDevice = dynamic_cast<BluetoothLEDevice^>(dynamic_cast<ListView^>(sender)->SelectedItem);
 
     if (selectedDevice != nullptr) {
         initFlyout->ShowAt(pairedDevices);
@@ -111,7 +116,9 @@ void Cpp_Template::MainPage::pairedDevices_SelectionChanged(Platform::Object^ se
         auto board = MetaWearBoard::getInstance(selectedDevice);
         board->initialize([](MblMwMetaWearBoard* board, int32_t status) -> void {
             CoreApplication::MainView->CoreWindow->Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([&status]() -> void {
-                MainPage^ page = dynamic_cast<MainPage^>(Window::Current->Content);
+                Windows::UI::Xaml::Controls::Frame^ frame = dynamic_cast<Windows::UI::Xaml::Controls::Frame^>(Window::Current->Content);
+                auto page = dynamic_cast<MainPage^>(frame->Content);
+
                 page->HideInitFlyout();
 
                 if (status == MBL_MW_STATUS_ERROR_TIMEOUT) {
@@ -121,15 +128,12 @@ void Cpp_Template::MainPage::pairedDevices_SelectionChanged(Platform::Object^ se
                     dialog->PrimaryButtonText = "OK";
                     dialog->ShowAsync();
                 } else {
-                    page->Frame->Navigate(DeviceSetup::typeid);
-                    //this.Frame.Navigate(typeof(DeviceSetup), selectedDevice);
+                    page->navigateToDeviceSetup();
                 }
-
             }));
         });
     }
 }
-
 
 void Cpp_Template::MainPage::refreshDevices_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e) {
     pairedDevices->Items->Clear();
