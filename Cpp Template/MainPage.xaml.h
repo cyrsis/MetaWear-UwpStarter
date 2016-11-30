@@ -9,6 +9,29 @@
 
 namespace Cpp_Template
 {
+
+    [Windows::UI::Xaml::Data::BindableAttribute]
+    public ref class BindableBtleDevice sealed {
+        Windows::Devices::Bluetooth::BluetoothLEDevice^ _device;
+    public:
+        BindableBtleDevice(Windows::Devices::Bluetooth::BluetoothLEDevice^ device) {
+            this->_device = device;
+        }
+
+        property Windows::Devices::Bluetooth::BluetoothLEDevice^ device {
+            Windows::Devices::Bluetooth::BluetoothLEDevice^ get() { return _device; }
+        }
+        property Platform::String^ Name {
+            Platform::String^ get() { return _device->Name; }
+        }
+        property uint64 BluetoothAddress {
+            uint64 get() { return _device->BluetoothAddress; }
+        }
+        property Windows::Devices::Bluetooth::BluetoothConnectionStatus ConnectionStatus {
+            Windows::Devices::Bluetooth::BluetoothConnectionStatus get() { return _device->ConnectionStatus; }
+        }
+    };
+
     public ref class MacAddressHexString sealed : Windows::UI::Xaml::Data::IValueConverter {
     public:
         MacAddressHexString();

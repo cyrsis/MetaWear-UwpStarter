@@ -32,7 +32,7 @@ void MetaWearBoard::writeGattCharacteristic(const void* caller, const MblMwGattC
     for (uint8_t i = 0; i < length; i++) {
         wrapper[i] = value[i];
     }
-
+    
     Guid service = byteArrayToGuid((const uint8_t*)characteristic), guidChar = byteArrayToGuid((const uint8_t*)(&characteristic->uuid_high));
     auto dest = cppToWrapper.at(caller)->device->GetGattService(service)->GetCharacteristics(guidChar)->First()->Current;
     concurrency::create_task(dest->WriteValueAsync(CryptographicBuffer::CreateFromByteArray(wrapper), GattWriteOption::WriteWithoutResponse)).then([](GattCommunicationStatus status) {

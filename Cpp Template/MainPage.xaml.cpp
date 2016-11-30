@@ -52,14 +52,14 @@ Platform::Object ^ MacAddressHexString::Convert(Platform::Object ^value, Windows
     wstringstream wstream;
     wstream << hex << (uint64) value;
 
-    wstring hexString = wstream.str();
-    hexString.insert(2, L":");
-    hexString.insert(5, L":");
-    hexString.insert(8, L":");
-    hexString.insert(11, L":");
-    hexString.insert(14, L":");
-
-    return ref new String(hexString.c_str());
+    return ref new String(wstream.str()
+        .insert(2, L":")
+        .insert(5, L":")
+        .insert(8, L":")
+        .insert(11, L":")
+        .insert(14, L":")
+        .c_str()
+    );
 }
 
 Platform::Object ^ MacAddressHexString::ConvertBack(Platform::Object ^value, Windows::UI::Xaml::Interop::TypeName targetType, Platform::Object ^parameter, Platform::String ^language) {
@@ -108,7 +108,7 @@ void MainPage::navigateToDeviceSetup() {
 }
 
 void Cpp_Template::MainPage::pairedDevices_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e) {
-    selectedDevice = dynamic_cast<BluetoothLEDevice^>(dynamic_cast<ListView^>(sender)->SelectedItem);
+    selectedDevice = dynamic_cast<BindableBtleDevice^>(dynamic_cast<ListView^>(sender)->SelectedItem)->device;
 
     if (selectedDevice != nullptr) {
         initFlyout->ShowAt(pairedDevices);
@@ -140,11 +140,7 @@ void Cpp_Template::MainPage::refreshDevices_Click(Platform::Object^ sender, Wind
     concurrency::create_task(DeviceInformation::FindAllAsync(BluetoothLEDevice::GetDeviceSelector())).then([this](DeviceInformationCollection^ devicesInfo) -> void {
         for (auto info : devicesInfo) {
             concurrency::create_task(BluetoothLEDevice::FromIdAsync(info->Id)).then([this](BluetoothLEDevice^ device) -> void {
-                pairedDevices->Items->Append(device);
-
-                wstringstream wstream;
-                wstream << "Device: " << hex << (uint64) device->BluetoothAddress << "\r\n";
-                OutputDebugString(wstream.str().c_str());
+                pairedDevices->Items->Append(ref new BindableBtleDevice(device));
             });
         }
     });
