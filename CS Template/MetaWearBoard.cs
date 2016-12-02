@@ -88,7 +88,10 @@ namespace MbientLab.MetaWear.Template {
         /// C# wrapper around the MblMwBtleConnection struct 
         /// </summary>
         private BtleConnection btleConn;
-        
+
+        private TaskCompletionSource<int> initTaskSource;
+        private Fn_IntPtr_Int initDelegate;
+
         private MetaWearBoard(BluetoothLEDevice btleDevice) {
             this.btleDevice = btleDevice;
 
@@ -111,17 +114,14 @@ namespace MbientLab.MetaWear.Template {
                 await notifyChar.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
             }
 
-            
-            return await Task.Run(() => {
-                int initStatus = -1;
+            initTaskSource = new TaskCompletionSource<int>();
 
-                Fn_IntPtr_Int initDelegate = new Fn_IntPtr_Int((caller, status) => {
-                    initStatus = status;
-                });
-                mbl_mw_metawearboard_initialize(cppBoard, initDelegate);
-
-                return initStatus;
+            initDelegate = new Fn_IntPtr_Int((caller, status) => {
+                initTaskSource.SetResult(status);
             });
+            mbl_mw_metawearboard_initialize(cppBoard, initDelegate);
+
+            return await initTaskSource.Task;
         }
 
         /// <summary>
