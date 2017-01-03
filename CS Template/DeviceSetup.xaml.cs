@@ -25,6 +25,7 @@ using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.Networking.Connectivity;
 using Windows.Storage.Streams;
+using MbientLab.MetaWear.Sensor;
 using OSCForPCL;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -90,54 +91,73 @@ namespace MbientLab.MetaWear.Template {
             //Send(message);
         });
 
-
+        private Fn_IntPtr fusionAccHandler = new Fn_IntPtr(FusionAccDataPtr =>
+        {
+            
+            Data marshalledData = Marshal.PtrToStructure<Data>(FusionAccDataPtr);
+            System.Diagnostics.Debug.WriteLine(DateTime.Now+ " Fusion  " + Marshal.PtrToStructure<Quaternion>(marshalledData.value));
+            var message = "Fussion " + Marshal.PtrToStructure<Quaternion>(marshalledData.value).ToString();
+            //Send(message);
+        });
 
 
         private void accStart_Click(object sender, RoutedEventArgs e)
         {
-            IntPtr accSignal = mbl_mw_acc_get_acceleration_data_signal(cppBoard);
-            mbl_mw_datasignal_subscribe(accSignal, accDataHandler);
-            mbl_mw_acc_enable_acceleration_sampling(cppBoard);
-            mbl_mw_acc_start(cppBoard);
+            mbl_mw_sensor_fusion_set_mode(cppBoard, SensorFusion.Mode.NDOF);
+            mbl_mw_sensor_fusion_set_acc_range(cppBoard, SensorFusion.AccRange.AR_4G);
+            mbl_mw_sensor_fusion_write_config(cppBoard);
 
-            IntPtr pa_signal = mbl_mw_baro_bosch_get_pressure_data_signal(cppBoard);
-            mbl_mw_datasignal_subscribe(pa_signal, barDataHandler);
-            mbl_mw_baro_bosch_start(cppBoard);
+            IntPtr fussionsAccSignal = mbl_mw_sensor_fusion_get_data_signal(cppBoard,SensorFusion.Data.QUATERION);
+            mbl_mw_datasignal_subscribe(fussionsAccSignal, fusionAccHandler);
+            mbl_mw_sensor_fusion_enable_data(cppBoard, SensorFusion.Data.QUATERION);
+            mbl_mw_sensor_fusion_start(cppBoard);
 
-            IntPtr state_signal = mbl_mw_gyro_bmi160_get_rotation_data_signal(cppBoard);
-            mbl_mw_datasignal_subscribe(state_signal, GyroDataHandler);
-            mbl_mw_gyro_bmi160_enable_rotation_sampling(cppBoard);
-            mbl_mw_gyro_bmi160_start(cppBoard);
+            //IntPtr accSignal = mbl_mw_acc_get_acceleration_data_signal(cppBoard);
+            //mbl_mw_datasignal_subscribe(accSignal, accDataHandler);
+            //mbl_mw_acc_enable_acceleration_sampling(cppBoard);
+            //mbl_mw_acc_start(cppBoard);
 
-            IntPtr bfield_signal = mbl_mw_mag_bmm150_get_b_field_data_signal(cppBoard);
-            mbl_mw_datasignal_subscribe(bfield_signal, BieldData_handler);
-            mbl_mw_mag_bmm150_enable_b_field_sampling(cppBoard);
-            mbl_mw_mag_bmm150_start(cppBoard);
+            //IntPtr pa_signal = mbl_mw_baro_bosch_get_pressure_data_signal(cppBoard);
+            //mbl_mw_datasignal_subscribe(pa_signal, barDataHandler);
+            //mbl_mw_baro_bosch_start(cppBoard);
+
+            //IntPtr state_signal = mbl_mw_gyro_bmi160_get_rotation_data_signal(cppBoard);
+            //mbl_mw_datasignal_subscribe(state_signal, GyroDataHandler);
+            //mbl_mw_gyro_bmi160_enable_rotation_sampling(cppBoard);
+            //mbl_mw_gyro_bmi160_start(cppBoard);
+
+            //IntPtr bfield_signal = mbl_mw_mag_bmm150_get_b_field_data_signal(cppBoard);
+            //mbl_mw_datasignal_subscribe(bfield_signal, BieldData_handler);
+            //mbl_mw_mag_bmm150_enable_b_field_sampling(cppBoard);
+            //mbl_mw_mag_bmm150_start(cppBoard);
 
         }
 
         private void accStop_Click(object sender, RoutedEventArgs e)
         {
-            IntPtr accSignal = mbl_mw_acc_get_acceleration_data_signal(cppBoard);
-            IntPtr barSignal = mbl_mw_baro_bosch_get_pressure_data_signal(cppBoard);
-            IntPtr gyroSignal = mbl_mw_gyro_bmi160_get_rotation_data_signal(cppBoard);
-            IntPtr magSignal = mbl_mw_mag_bmm150_get_b_field_data_signal(cppBoard);
 
-            mbl_mw_acc_stop(cppBoard);
-            mbl_mw_acc_disable_acceleration_sampling(cppBoard);
-            mbl_mw_datasignal_unsubscribe(accSignal);
+            mbl_mw_sensor_fusion_stop(cppBoard);
 
-            mbl_mw_baro_bosch_stop(cppBoard);
-            mbl_mw_datasignal_unsubscribe(barSignal);
+            //IntPtr accSignal = mbl_mw_acc_get_acceleration_data_signal(cppBoard);
+            //IntPtr barSignal = mbl_mw_baro_bosch_get_pressure_data_signal(cppBoard);
+            //IntPtr gyroSignal = mbl_mw_gyro_bmi160_get_rotation_data_signal(cppBoard);
+            //IntPtr magSignal = mbl_mw_mag_bmm150_get_b_field_data_signal(cppBoard);
 
-            mbl_mw_gyro_bmi160_stop(cppBoard);
-            mbl_mw_gyro_bmi160_disable_rotation_sampling(cppBoard);
-            mbl_mw_datasignal_unsubscribe(gyroSignal);
+            //mbl_mw_acc_stop(cppBoard);
+            //mbl_mw_acc_disable_acceleration_sampling(cppBoard);
+            //mbl_mw_datasignal_unsubscribe(accSignal);
+
+            //mbl_mw_baro_bosch_stop(cppBoard);
+            //mbl_mw_datasignal_unsubscribe(barSignal);
+
+            //mbl_mw_gyro_bmi160_stop(cppBoard);
+            //mbl_mw_gyro_bmi160_disable_rotation_sampling(cppBoard);
+            //mbl_mw_datasignal_unsubscribe(gyroSignal);
 
 
-            mbl_mw_mag_bmm150_disable_b_field_sampling(cppBoard);
-            mbl_mw_mag_bmm150_stop(cppBoard);
-            mbl_mw_datasignal_unsubscribe(magSignal);
+            //mbl_mw_mag_bmm150_disable_b_field_sampling(cppBoard);
+            //mbl_mw_mag_bmm150_stop(cppBoard);
+            //mbl_mw_datasignal_unsubscribe(magSignal);
         }
 
         private static void Send(string message)
