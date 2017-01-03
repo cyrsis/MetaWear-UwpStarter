@@ -8,6 +8,20 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <Button x:Name="accStart"
+                Margin="10,10,10,0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top"
+                Click="accStart_Click"
+                Content="Start" />
+        <Button x:Name="accStop"
+                Margin="10,47,10,0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top"
+                Click="accStop_Click"
+                Content="Stop" />
+       
         <Button x:Name="back" Content="Back" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Click="back_Click"/>
     </Grid>
 </Page>
