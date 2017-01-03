@@ -21,6 +21,10 @@ using Windows.UI.Xaml.Navigation;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
 using MbientLab.MetaWear.Core;
+using Windows.Networking;
+using Windows.Networking.Sockets;
+using Windows.Networking.Connectivity;
+using Windows.Storage.Streams;
 using OSCForPCL;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -34,7 +38,12 @@ namespace MbientLab.MetaWear.Template {
         /// Pointer representing the MblMwMetaWearBoard struct created by the C++ API
         /// </summary>
         private IntPtr cppBoard;
-        
+
+
+        public static string ServerPort = "7474";
+
+        static HostName ServerIP = new HostName("192.168.0.151");
+
         public DeviceSetup() {
             this.InitializeComponent();
         }
@@ -50,35 +59,35 @@ namespace MbientLab.MetaWear.Template {
 
         private Fn_IntPtr accDataHandler = new Fn_IntPtr(pointer => {
             Data data = Marshal.PtrToStructure<Data>(pointer);
-            System.Diagnostics.Debug.WriteLine(Marshal.PtrToStructure<CartesianFloat>(data.value));
+            System.Diagnostics.Debug.WriteLine("ACC "+Marshal.PtrToStructure<CartesianFloat>(data.value));
         });
 
 
         private Fn_IntPtr barDataHandler = new Fn_IntPtr(bardataPtr =>
         {
             Data marshalledData = Marshal.PtrToStructure<Data>(bardataPtr);
-            System.Diagnostics.Debug.WriteLine("Bar" + Marshal.PtrToStructure<float>(marshalledData.value));
+            System.Diagnostics.Debug.WriteLine("Bar " + Marshal.PtrToStructure<float>(marshalledData.value));
 
             var message = "Bar " + Marshal.PtrToStructure<float>(marshalledData.value);
 
-            Send(message);
+            //Send(message);
         });
 
         private Fn_IntPtr GyroDataHandler = new Fn_IntPtr(GyroDataPtr =>
         {
             Data marshalledData = Marshal.PtrToStructure<Data>(GyroDataPtr);
-            System.Diagnostics.Debug.WriteLine("Gyro" + Marshal.PtrToStructure<CartesianFloat>(marshalledData.value));
+            System.Diagnostics.Debug.WriteLine("Gyro " + Marshal.PtrToStructure<CartesianFloat>(marshalledData.value));
 
             var message = "Gyro " + Marshal.PtrToStructure<CartesianFloat>(marshalledData.value);
-            Send(message);
+            //Send(message);
         });
 
         private Fn_IntPtr BieldData_handler = new Fn_IntPtr(BieldDataPtr =>
         {
             Data marshalledData = Marshal.PtrToStructure<Data>(BieldDataPtr);
-            System.Diagnostics.Debug.WriteLine("B-Field" + Marshal.PtrToStructure<CartesianFloat>(marshalledData.value));
+            System.Diagnostics.Debug.WriteLine("B-Field " + Marshal.PtrToStructure<CartesianFloat>(marshalledData.value));
             var message = "B-Field " + Marshal.PtrToStructure<CartesianFloat>(marshalledData.value);
-            Send(message);
+            //Send(message);
         });
 
 
