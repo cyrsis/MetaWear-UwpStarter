@@ -9,19 +9,20 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-        <Button x:Name="accStart"
-                Margin="10,10,10,0"
+
+        <StackPanel Orientation="Vertical">
+            <Button x:Name="accStart"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Top"
                 Click="accStart_Click"
                 Content="Start" />
-        <Button x:Name="accStop"
-                Margin="10,47,10,0"
+            <Button x:Name="accStop"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Top"
                 Click="accStop_Click"
                 Content="Stop" />
-       
+            <TextBox x:Name="HostNameForConnect" Text="localhost" />
+            <TextBox x:Name="ServiceNameForConnect" Text="7474" />
+        </StackPanel>
+
         <Button x:Name="back" Content="Back" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Click="back_Click"/>
     </Grid>
 </Page>

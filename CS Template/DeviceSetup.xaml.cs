@@ -39,6 +39,7 @@ namespace MbientLab.MetaWear.Template {
         /// Pointer representing the MblMwMetaWearBoard struct created by the C++ API
         /// </summary>
         private IntPtr cppBoard;
+        
 
 
         public static string ServerPort = "7474";
@@ -97,12 +98,18 @@ namespace MbientLab.MetaWear.Template {
             Data marshalledData = Marshal.PtrToStructure<Data>(FusionAccDataPtr);
             System.Diagnostics.Debug.WriteLine(DateTime.Now+ " Fusion  " + Marshal.PtrToStructure<Quaternion>(marshalledData.value));
             var message = "Fussion " + Marshal.PtrToStructure<Quaternion>(marshalledData.value).ToString();
-            //Send(message);
+            Send(message);
         });
 
 
         private void accStart_Click(object sender, RoutedEventArgs e)
         {
+
+            ServerPort = ServiceNameForConnect.Text;
+
+            ServerIP = new HostName(HostNameForConnect.Text);
+
+
             mbl_mw_sensor_fusion_set_mode(cppBoard, SensorFusion.Mode.NDOF);
             mbl_mw_sensor_fusion_set_acc_range(cppBoard, SensorFusion.AccRange.AR_4G);
             mbl_mw_sensor_fusion_write_config(cppBoard);
@@ -166,6 +173,7 @@ namespace MbientLab.MetaWear.Template {
             //OSCMessage messageTwo = new OSCMessage("/address2", 5.0f, 3.2f, "attributes"); //two floats and a string
 
             OSCBundle bundle = new OSCBundle(messageOne);
+           
             SendStringUdpAsync(ServerIP, ServerPort, bundle);
         }
 
@@ -178,9 +186,9 @@ namespace MbientLab.MetaWear.Template {
             this.Frame.Navigate(typeof(MainPage));
         }
 
-        public static async Task SendStringUdpAsync(HostName remoteHost,string remotePort, OSCPacket packet)
+        public static  async Task SendStringUdpAsync(HostName remoteHost,string remotePort, OSCPacket packet)
         {
-
+            
             var socket = new DatagramSocket();
 
             //socket.MessageReceived += SocketOnMessageReceived;
