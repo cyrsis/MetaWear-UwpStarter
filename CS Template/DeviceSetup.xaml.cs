@@ -109,7 +109,7 @@ namespace MbientLab.MetaWear.Template {
 
             ServerIP = new HostName(HostNameForConnect.Text);
 
-
+            mbl_mw_settings_set_connection_parameters(cppBoard, 2F, 7.5F, 0, 5000);
             mbl_mw_sensor_fusion_set_mode(cppBoard, SensorFusion.Mode.NDOF);
             mbl_mw_sensor_fusion_set_acc_range(cppBoard, SensorFusion.AccRange.AR_4G);
             mbl_mw_sensor_fusion_write_config(cppBoard);
